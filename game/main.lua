@@ -28,21 +28,24 @@ function love.draw()
     local targetWidth = scaleFactor * aspectRatio
     local targetHeight = scaleFactor
 
-    -- Center the content in the window
+    -- Dynamically create a canvas matching the current screen size
+    local canvas = love.graphics.newCanvas(targetWidth, targetHeight)
+    love.graphics.setCanvas(canvas)
+    love.graphics.clear(0.1, 0.1, 0.1, 1)
+
+    -- Draw content to the canvas with proper scaling
+    love.graphics.push()
+    love.graphics.scale(targetWidth, targetHeight) -- Scale canvas contents to its normalized size (0-aspectRatio, 0-1)
+    main_render()
+    love.graphics.pop()
+
+    -- Unset the canvas
+    love.graphics.setCanvas()
+
+    -- Center the canvas on the screen
     local offsetX = (windowWidth - targetWidth) / 2
     local offsetY = (windowHeight - targetHeight) / 2
-
-    love.graphics.push()
-    love.graphics.translate(offsetX, offsetY)
-    love.graphics.scale(scaleFactor, scaleFactor)
-    
-    love.graphics.setColor(0.1, 0.1, 0.1)
-    love.graphics.rectangle("fill", 0, 0, 4/3, 1)
-
-    main_render()
-    
-
-    love.graphics.pop()
+    love.graphics.draw(canvas, offsetX, offsetY)
 
     -- Draw a custom cursor (blue circle) that respects scaling
     local mouseX, mouseY = love.mouse.getPosition()
@@ -60,3 +63,4 @@ function love.draw()
     love.graphics.setColor(1, 1, 1)
     love.graphics.print("Resize the window to see scaling with constant aspect ratio", 10, 10)
 end
+
