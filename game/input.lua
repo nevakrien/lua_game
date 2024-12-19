@@ -10,6 +10,8 @@ function drag_start(x, y)
     --could be more delibrate here
     isPressing = true
     selectedOrb = queryOne(world,dragX-0.01,dragY-0.01,dragX+0.01,dragY+0.01)
+    select_orb(selectedOrb)
+    
     print("selected orb", selectedOrb)
 
     drag_handle(x,y)
@@ -31,6 +33,7 @@ end
 -- Function to handle releasing a drag
 function drag_release(x, y)
     update_drag(x, y)
+    unselect_orb(selectedOrb)
 
     selectedOrb = nil 
     isPressing = false

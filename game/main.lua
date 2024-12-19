@@ -6,13 +6,14 @@ dragX,dragY = -1,-1
 minEdge,scaleFactor = 1,1
 targetWidth ,targetHeight = 0 , 0
 
-local world = nil
+world = nil
 
 local input = require("input")
 local orb_mod = require("orb")
 
 aspectRatio = 16 / 9 -- Default aspect ratio (can be changed dynamically)
-local canvas = nil
+ 
+canvas = nil
 
 
 
@@ -60,6 +61,10 @@ end
 function love.update(dt)
     -- Regularly "poke" the system to prevent sleep
     love.event.pump()
+    -- print("update")
+    if selectedOrb ~=nil then
+        drag_orb(world,selectedOrb,dragX,dragY,dt)
+    end 
     world:update(dt)
 end
 
@@ -74,7 +79,7 @@ function main_render()
     -- love.graphics.rectangle("fill", 0.5, 0.5, aspectRatio,0.3)
 
 
-    love.graphics.setColor(0.3, 1.0, 0.3)
+    love.graphics.setColor(0.6, 0.3, 0.6)
     love.graphics.circle("fill", dragX, dragY, 5) -- Circle size as fraction of height
 
     render_orbs(allOrbs)
