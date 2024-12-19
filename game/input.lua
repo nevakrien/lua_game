@@ -3,7 +3,7 @@ screenDragX, screenDragY = 0, 0
 
 selectedOrb = nil
 
-function drag_start(x, y)
+function drag_start(world,x, y)
     update_drag(x, y)
 
 
@@ -14,7 +14,7 @@ function drag_start(x, y)
     
     print("selected orb", selectedOrb)
 
-    drag_handle(x,y)
+    drag_handle(world,x,y)
 end
 
 -- Function to handle dragging (update position)
@@ -26,12 +26,12 @@ function update_drag(x, y)
 end
 
 -- Function to handle dragging (update position)
-function drag_handle(x, y)
+function drag_handle(world,x, y)
     update_drag(x, y)
 end
 
 -- Function to handle releasing a drag
-function drag_release(x, y)
+function drag_release(world,x, y)
     update_drag(x, y)
     unselect_orb(selectedOrb)
 
@@ -42,32 +42,32 @@ end
 -- Input functions
 function love.mousepressed(x, y, button, istouch, presses)
     if button == 1 then
-        drag_start(x, y)
+        drag_start(world,x, y)
     end
 end
 
 function love.mousereleased(x, y, button, istouch, presses)
     if button == 1 then
-        drag_release(x, y)
+        drag_release(world,x, y)
     end
 end
 
 function love.mousemoved(x, y, dx, dy, istouch)
     if isPressing then
-        drag_handle(x, y)
+        drag_handle(world,x, y)
     end
 end
 
 function love.touchpressed(id, x, y, dx, dy, pressure)
-    drag_start(x, y)
+    drag_start(world,x, y)
 end
 
 function love.touchreleased(id, x, y, dx, dy, pressure)
-    drag_release(x, y)
+    drag_release(world,x, y)
 end
 
 function love.touchmoved(id, x, y, dx, dy, pressure)
     if isPressing then
-        drag_handle(x, y)
+        drag_handle(world,x, y)
     end
 end

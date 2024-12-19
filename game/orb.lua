@@ -107,5 +107,5 @@ function drag_orb(world, orb, x, y,dt)
     local impulse = dt*750
     body:applyLinearImpulse(dx * impulse, dy * impulse)
 
-    debug_orb(orb)
+    -- debug_orb(orb)
 end
