@@ -1,32 +1,39 @@
-isDragging = false
+isPressing = false
 screenDragX, screenDragY = 0, 0
 
+selectedOrb = nil
 
 function drag_start(x, y)
-    screenDragX, screenDragY = x, y
+    update_drag(x, y)
+
 
     --could be more delibrate here
-    isDragging = true
-    -- print("Drag started at:", x, y)
+    isPressing = true
+    selectedOrb = queryOne(world,dragX-0.01,dragY-0.01,dragX+0.01,dragY+0.01)
+    print("selected orb", selectedOrb)
+
+    drag_handle(x,y)
 end
 
-
 -- Function to handle dragging (update position)
-function drag_handle(x, y)
+function update_drag(x, y)
     screenDragX, screenDragY = x, y
 
     dragX = (screenDragX - offsetX) / scaleFactor
     dragY = (screenDragY - offsetY) / scaleFactor
 end
 
+-- Function to handle dragging (update position)
+function drag_handle(x, y)
+    update_drag(x, y)
+end
+
 -- Function to handle releasing a drag
 function drag_release(x, y)
-    screenDragX, screenDragY = x, y
+    update_drag(x, y)
 
-    if isDragging then
-        isDragging = false
-        -- print("Drag released at:", x, y)
-    end
+    selectedOrb = nil 
+    isPressing = false
 end
 
 -- Input functions
@@ -43,7 +50,7 @@ function love.mousereleased(x, y, button, istouch, presses)
 end
 
 function love.mousemoved(x, y, dx, dy, istouch)
-    if isDragging then
+    if isPressing then
         drag_handle(x, y)
     end
 end
@@ -57,7 +64,7 @@ function love.touchreleased(id, x, y, dx, dy, pressure)
 end
 
 function love.touchmoved(id, x, y, dx, dy, pressure)
-    if isDragging then
+    if isPressing then
         drag_handle(x, y)
     end
 end

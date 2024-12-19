@@ -3,12 +3,23 @@
 isMobile = love.system.getOS() == "Android" or love.system.getOS() == "iOS"
 dragX,dragY = -1,-1
 
+minEdge,scaleFactor = 1,1
+targetWidth ,targetHeight = 0 , 0
+
+local world = nil
+
 local input = require("input")
+local orb_mod = require("orb")
+
 aspectRatio = 16 / 9 -- Default aspect ratio (can be changed dynamically)
-canvas = nil
+local canvas = nil
+
 
 
 function love.load()
+    love.physics.setMeter(10)
+
+    world = make_world()
     love.window.setTitle("Love2D Window Resize with Aspect Ratio")
     if isMobile then
         _ = love.window.setFullscreen(true)
@@ -25,17 +36,19 @@ function remake_canvas()
     windowWidth, windowHeight = love.graphics.getDimensions()
 
     -- Calculate the scale factor based on the smaller dimension to maintain aspect ratio
-    scaleFactor = math.min(windowWidth / aspectRatio, windowHeight)
-    targetWidth = scaleFactor * aspectRatio
-    targetHeight = scaleFactor
+    minEdge =  math.min(windowWidth / aspectRatio, windowHeight)
+    targetWidth = minEdge * aspectRatio
+    targetHeight = minEdge 
+
+    scaleFactor = minEdge/100
 
     canvas = love.graphics.newCanvas(targetWidth, targetHeight)
 
     offsetX = (windowWidth - targetWidth) / 2
     offsetY = (windowHeight - targetHeight) / 2
 
-    dragX = (screenDragX - offsetX) / scaleFactor
-    dragY = (screenDragY - offsetY) / scaleFactor
+    dragX = (screenDragX - offsetX) / minEdge
+    dragY = (screenDragY - offsetY) / minEdge
 end
 
 function love.resize(w, h)
@@ -47,13 +60,14 @@ end
 function love.update(dt)
     -- Regularly "poke" the system to prevent sleep
     love.event.pump()
+    world:update(dt)
 end
 
 function main_render()
 
     -- Draw a rectangle centered at the normalized coordinates
     love.graphics.setColor(0.8, 0.3, 0.3)
-    love.graphics.rectangle("fill", 0.4*aspectRatio,0.43, 0.3,  0.1)
+    love.graphics.rectangle("fill", 40*aspectRatio,43, 30,  10)
 
 
     -- love.graphics.setColor(0.7, 0.4, 0.3)
@@ -61,8 +75,9 @@ function main_render()
 
 
     love.graphics.setColor(0.3, 1.0, 0.3)
-    love.graphics.circle("fill", dragX, dragY, 0.05) -- Circle size as fraction of height
+    love.graphics.circle("fill", dragX, dragY, 5) -- Circle size as fraction of height
 
+    render_orbs(allOrbs)
 end
 
 function love.draw()
@@ -88,15 +103,15 @@ function love.draw()
     -- Center the canvas on the screen
     love.graphics.draw(canvas, offsetX, offsetY)
 
+    -- mouse is outside the main render
     if not isMobile then
-    -- Draw a custom cursor (blue circle) that respects scaling
         local mouseX, mouseY = love.mouse.getPosition()
-        local normalizedMouseX = (mouseX - offsetX) / scaleFactor
-        local normalizedMouseY = (mouseY - offsetY) / scaleFactor
+        local normalizedMouseX = (mouseX - offsetX) / minEdge
+        local normalizedMouseY = (mouseY - offsetY) / minEdge
         
         love.graphics.push()
         love.graphics.translate(offsetX, offsetY)
-        love.graphics.scale(scaleFactor, scaleFactor)
+        love.graphics.scale(minEdge, minEdge)
         love.graphics.setColor(0.2, 0.4, 0.8)
         love.graphics.circle("fill", normalizedMouseX, normalizedMouseY, 0.02) -- Circle size as fraction of height
         love.graphics.pop()
