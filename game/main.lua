@@ -4,8 +4,9 @@ isMobile = love.system.getOS() == "Android" or love.system.getOS() == "iOS"
 dragX,dragY = -1,-1
 
 local input = require("input")
-local rectWidth, rectHeight = 0.125, 0.0625 -- Dimensions of the rectangle as fractions of height
-local aspectRatio = 16 / 9 -- Default aspect ratio (can be changed dynamically)
+aspectRatio = 16 / 9 -- Default aspect ratio (can be changed dynamically)
+canvas = nil
+
 
 function love.load()
     love.window.setTitle("Love2D Window Resize with Aspect Ratio")
@@ -16,7 +17,32 @@ function love.load()
     end
     love.graphics.setBackgroundColor(0.0, 0.0, 0.0)
     love.mouse.setVisible(false) -- Hide the default cursor
+
+    remake_canvas()
 end
+
+function remake_canvas() 
+    windowWidth, windowHeight = love.graphics.getDimensions()
+
+    -- Calculate the scale factor based on the smaller dimension to maintain aspect ratio
+    scaleFactor = math.min(windowWidth / aspectRatio, windowHeight)
+    targetWidth = scaleFactor * aspectRatio
+    targetHeight = scaleFactor
+
+    canvas = love.graphics.newCanvas(targetWidth, targetHeight)
+
+    offsetX = (windowWidth - targetWidth) / 2
+    offsetY = (windowHeight - targetHeight) / 2
+
+    dragX = (screenDragX - offsetX) / scaleFactor
+    dragY = (screenDragY - offsetY) / scaleFactor
+end
+
+function love.resize(w, h)
+    print("Window resized to width: " .. w .. " and height: " .. h)
+    remake_canvas()
+end
+
 
 function love.update(dt)
     -- Regularly "poke" the system to prevent sleep
@@ -27,7 +53,12 @@ function main_render()
 
     -- Draw a rectangle centered at the normalized coordinates
     love.graphics.setColor(0.8, 0.3, 0.3)
-    love.graphics.rectangle("fill", 0.5 * 16/9-rectWidth / 2, 0.5-rectHeight / 2, rectWidth, rectHeight)
+    love.graphics.rectangle("fill", 0.4*aspectRatio,0.43, 0.3,  0.1)
+
+
+    -- love.graphics.setColor(0.7, 0.4, 0.3)
+    -- love.graphics.rectangle("fill", 0.5, 0.5, aspectRatio,0.3)
+
 
     love.graphics.setColor(0.3, 1.0, 0.3)
     love.graphics.circle("fill", dragX, dragY, 0.05) -- Circle size as fraction of height
@@ -35,21 +66,8 @@ function main_render()
 end
 
 function love.draw()
-    local windowWidth, windowHeight = love.graphics.getDimensions()
-
-    -- Calculate the scale factor based on the smaller dimension to maintain aspect ratio
-    local scaleFactor = math.min(windowWidth / aspectRatio, windowHeight)
-    local targetWidth = scaleFactor * aspectRatio
-    local targetHeight = scaleFactor
-
-    local offsetX = (windowWidth - targetWidth) / 2
-    local offsetY = (windowHeight - targetHeight) / 2
-
-    dragX = (screenDragX - offsetX) / scaleFactor
-    dragY = (screenDragY - offsetY) / scaleFactor
-
     -- Dynamically create a canvas matching the current screen size
-    local canvas = love.graphics.newCanvas(targetWidth, targetHeight)
+    -- local canvas = love.graphics.newCanvas(targetWidth, targetHeight)
     love.graphics.setCanvas(canvas)
     love.graphics.clear(0.1, 0.1, 0.1, 1)
 

@@ -14,6 +14,9 @@ end
 -- Function to handle dragging (update position)
 function drag_handle(x, y)
     screenDragX, screenDragY = x, y
+
+    dragX = (screenDragX - offsetX) / scaleFactor
+    dragY = (screenDragY - offsetY) / scaleFactor
 end
 
 -- Function to handle releasing a drag
