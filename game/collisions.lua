@@ -1,7 +1,7 @@
 collisions = {}
 StartCol = {}
 
-local colLifetime = 0.2
+local colLifetime = 0.5--10--0.2
 dummy_texture = love.graphics.newCanvas(1, 1)
 
 
@@ -14,7 +14,7 @@ function beginContact(a, b, coll)
 end
 
 function postSolve(a, b, contact, normalImpulse1, tangentImpulse1, normalImpulse2, tangentImpulse2)
-    if not StartCol[get_key(a,b)] then
+    if not StartCol[get_key(a,b)] then 
         -- If this pair didn't contact this frame, ignore it
         return
     end
@@ -29,9 +29,10 @@ function postSolve(a, b, contact, normalImpulse1, tangentImpulse1, normalImpulse
 
     -- Get the collision position (if needed for debugging or visualization)
     local x, y = contact:getPositions()
+    local seed = math.random()
 
     -- Store the collision data with strength
-    table.insert(collisions, {x = x, y = y, time = love.timer.getTime(), strength = strength})
+    table.insert(collisions, {x = x, y = y, time = love.timer.getTime(), strength = strength,seed=seed})
 end
 
 
@@ -52,12 +53,20 @@ function render_collisions()
     
     for _, col in ipairs(collisions) do
         -- Draw a rectangle with the shader
-        local size = 5+(14/100)*math.min(100,col.strength);
+        local size = 5+0.14*col.strength;
+
+        -- size = size*2
+        -- local size = 5+(14/100)*math.min(100,col.strength);
         
         -- Send t to the shader
         local elapsedTime = love.timer.getTime() - col.time
         local t = math.min(elapsedTime / colLifetime, 1.0) -- Clamp t between 0 and 1
+        local strength = math.min(0.14*col.strength,1)
+        
         collisionShader:send("t", t)
+        collisionShader:send("seed", col.seed)
+        collisionShader:send("strength", col.seed)
+        -- collisionShader:send("strength", col.strength)
 
         -- Draw
         love.graphics.push()
