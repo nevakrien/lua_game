@@ -9,7 +9,9 @@ vec4 effect(vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords) 
 
     // Smooth transparency effect
     float phase = sin(PI*t);
-    if (phase <= 0) discard;
+    if (phase <= 0.0) {
+        return vec4(0);
+    }
     float alpha = smoothstep(0.4 * phase, 0.0, dist); // Sharply fade out beyond a certain radius
 
     // Return orange color with calculated alpha
