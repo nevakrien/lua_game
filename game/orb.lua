@@ -116,9 +116,9 @@ function add_triangle_orb(world, x, y, side_length)
     -- Calculate the vertices of the equilateral triangle
     local height = (math.sqrt(3) / 2) * side_length
     local vertices = {
-        0, -height / 3,              -- Top vertex
-        -side_length / 2, height * 2 / 3,  -- Bottom left vertex
-        side_length / 2, height * 2 / 3    -- Bottom right vertex
+        0, -height *2/ 3,              -- Top vertex
+        -side_length / 2, height / 3,  -- Bottom left vertex
+        side_length / 2, height  / 3    -- Bottom right vertex
     }
 
     -- Create physics body and shape
@@ -216,7 +216,7 @@ function drag_orb(world, orb, x, y,dt)
     local distance = math.sqrt(dx * dx + dy * dy)
 
     local mass = body:getMass()
-    local impulse = dt*700*math.pow(mass,0.8)
+    local impulse = dt*700*(mass+0.4)
     body:applyLinearImpulse(dx * impulse, dy * impulse)
 
     -- debug_orb(orb)
