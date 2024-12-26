@@ -12,7 +12,10 @@ local input = require("input")
 local orb_mod = require("orb")
 
 aspectRatio = 16 / 9 -- Default aspect ratio (can be changed dynamically)
- 
+
+worldWidth = 100 * aspectRatio
+worldHeight = 100
+
 local canvas = nil
 
 
@@ -72,7 +75,7 @@ function main_render()
 
     -- Draw a rectangle centered at the normalized coordinates
     love.graphics.setColor(0.8, 0.3, 0.3)
-    love.graphics.rectangle("fill", 40*aspectRatio,43, 30,  10)
+    -- love.graphics.rectangle("fill", 40*aspectRatio,43, 30,  10)
 
 
     -- love.graphics.setColor(0.7, 0.4, 0.3)

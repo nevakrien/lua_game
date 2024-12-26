@@ -3,6 +3,10 @@ screenDragX, screenDragY = 0, 0
 
 selectedOrb = nil
 
+if isMobile then
+    touches = {}
+end
+
 function drag_start(world,x, y)
     update_drag(x, y)
 
