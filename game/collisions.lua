@@ -1,6 +1,6 @@
 collisions = {}
 
-local colLifetime = 0.4
+local colLifetime = 0.2
 dummy_texture = love.graphics.newCanvas(1, 1)
 
 function beginContact(a, b, coll)
@@ -23,7 +23,14 @@ function render_collisions()
     
     for _, point in ipairs(collisions) do
         -- Draw a rectangle with the shader
-        local size = 10 -- Adjust size for the circle
+        local size = 24 -- Adjust size for the circle
+        
+        -- Send t to the shader
+        local elapsedTime = love.timer.getTime() - point.time
+        local t = math.min(elapsedTime / colLifetime, 1.0) -- Clamp t between 0 and 1
+        collisionShader:send("t", t)
+
+        -- Draw
         love.graphics.push()
         love.graphics.translate(point.x, point.y)
         love.graphics.draw(dummy_texture, -size / 2, -size / 2, 0, size, size)
