@@ -88,9 +88,15 @@ function add_rectangle_orb(world, x, y, width, height)
 
     -- Define the render closure
     orb.render = function(orb)
-        local x, y = orb.body:getPosition() -- Get current position of the orb
-        love.graphics.setColor({1.0, 0.3, 0.3}) -- Set the orb's color
-        love.graphics.rectangle("fill", x - width / 2, y - height / 2, width, height)
+        local x, y = orb.body:getPosition() -- Get the current position of the orb
+        local angle = orb.body:getAngle()  -- Get the current rotation of the orb
+        love.graphics.setColor(1.0, 0.3, 0.3) -- Set the orb's color
+        -- Draw the rectangle at its position and angle
+        love.graphics.push()
+        love.graphics.translate(x, y)
+        love.graphics.rotate(angle)
+        love.graphics.rectangle("fill", -width / 2, -height / 2, width, height)
+        love.graphics.pop()
     end
 
     -- Assign the orb as user data to the body
