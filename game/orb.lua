@@ -5,7 +5,8 @@ allOrbs = {}
 function make_world()
     love.physics.setMeter(30)
     local world = love.physics.newWorld(0, 0, true)
-    world:setCallbacks(beginContact)
+    -- world:setCallbacks(beginContact)
+    world:setCallbacks(beginContact, nil, nil, postSolve)
 
     add_walls(world)
 
