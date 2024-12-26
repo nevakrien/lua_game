@@ -19,7 +19,7 @@ float hash(vec2 p, float t,float seed) {
     // float combined = freq1 + 0.5 * freq2 + 0.25 * freq3 + freq4;
     float combined = 0.1*freq1+freq2  + freq4;
 
-    return clamp(combined*combined,0,1);
+    return clamp(combined*combined,0.0,1.0);
 }
 
 vec4 effect(vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords) {
@@ -27,12 +27,12 @@ vec4 effect(vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords) 
     vec2 center = vec2(0.5, 0.5);
     float dist = length(texture_coords - center);
     float random = hash(texture_coords,t,seed);
-    float random2 = mod(17*random,1);
+    float random2 = mod(17.0*random,1.0);
 
     // Smooth transparency effect
     float phase = sin(PI*t);
     if (phase <= 0.0) {
-        return vec4(0);
+        return vec4(0.0);
     }
     float alpha = smoothstep(0.4 * phase, 0.0, dist); // Sharply fade out beyond a certain radius
     // alpha = mix(alpha,random,0.3);

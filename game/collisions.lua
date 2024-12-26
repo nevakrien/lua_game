@@ -1,7 +1,7 @@
 collisions = {}
 StartCol = {}
 
-local colLifetime = 0.5--10--0.2
+local colLifetime = 0.2--10--0.2
 dummy_texture = love.graphics.newCanvas(1, 1)
 
 
