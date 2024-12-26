@@ -119,7 +119,7 @@ function love.draw()
         love.graphics.push()
         love.graphics.translate(offsetX, offsetY)
         love.graphics.scale(minEdge, minEdge)
-        love.graphics.setColor(0.2, 0.4, 0.8)
+        love.graphics.setColor(0.7, 0.4, 0.8)
         love.graphics.circle("fill", normalizedMouseX, normalizedMouseY, 0.02) -- Circle size as fraction of height
         love.graphics.pop()
     end

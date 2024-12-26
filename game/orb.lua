@@ -15,6 +15,7 @@ function make_world()
     add_basic_orb(world,0,10)
 
     add_rectangle_orb(world, 40*aspectRatio,43, 30,  10)
+    add_triangle_orb(world,100,0,30)
 
 
     return world
@@ -106,6 +107,46 @@ function add_rectangle_orb(world, x, y, width, height)
     orb.body:setUserData(orb)
     table.insert(allOrbs, orb)
 end
+
+function add_triangle_orb(world, x, y, side_length)
+    local orb = {
+        type = "triangle_orb",
+    }
+
+    -- Calculate the vertices of the equilateral triangle
+    local height = (math.sqrt(3) / 2) * side_length
+    local vertices = {
+        0, -height / 3,              -- Top vertex
+        -side_length / 2, height * 2 / 3,  -- Bottom left vertex
+        side_length / 2, height * 2 / 3    -- Bottom right vertex
+    }
+
+    -- Create physics body and shape
+    orb.body = love.physics.newBody(world, x, y, "dynamic")
+    orb.shape = love.physics.newPolygonShape(vertices)
+    orb.fixture = love.physics.newFixture(orb.body, orb.shape, 1)
+    orb.fixture:setRestitution(0.8)
+    orb.body:setBullet(true)
+
+    -- Define the render closure
+    orb.render = function(orb)
+        local x, y = orb.body:getPosition() -- Get the current position of the orb
+        local angle = orb.body:getAngle()  -- Get the current rotation of the orb
+        love.graphics.setColor(0.1, 0.2, 0.8) -- Set the orb's color (darkish blue)
+        
+        -- Draw the triangle at its position and angle
+        love.graphics.push()
+        love.graphics.translate(x, y)
+        love.graphics.rotate(angle)
+        love.graphics.polygon("fill", vertices)
+        love.graphics.pop()
+    end
+
+    -- Assign the orb as user data to the body
+    orb.body:setUserData(orb)
+    table.insert(allOrbs, orb)
+end
+
 
 
 function render_orbs(orbs)
