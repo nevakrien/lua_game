@@ -39,8 +39,8 @@ vec4 effect(vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords) 
 
 
     // Color gradient: orange (inner) to red (outer)
-    vec3 innerColor = vec3(1.0, 1.0, 0.5*strength); // Orange
-    vec3 outerColor = vec3(0.8, 0.4, 0.1); // Red
+    vec3 innerColor = vec3(1.0, 1.0, 0.1+0.15*strength); // Orange
+    vec3 outerColor = vec3(0.9, 0.4, 0.5); // Red
     vec3 explosionColor = mix(innerColor, outerColor, dist / (0.4 * phase));
     
     explosionColor = mix(explosionColor, vec3(1.0,0.5+random*0.3,0.1+0.2*random2*strength), 0.5-0.2*strength);
