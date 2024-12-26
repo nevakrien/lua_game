@@ -193,7 +193,7 @@ function select_orb(orb)
 	if orb ~=nil then 
 		orb.body:setType("dynamic")
     	orb.body:setLinearDamping(100) -- Apply damping for friction/decay
-    	orb.fixture:setFriction(100) -- Apply damping for friction/decay
+    	-- orb.fixture:setFriction(100) -- Apply damping for friction/decay
 	end
 end
 
@@ -201,7 +201,7 @@ function unselect_orb(orb)
 	if orb ~=nil then 
 		orb.body:setType("dynamic")
 		orb.body:setLinearDamping(0) -- Apply damping for friction/decay
-    	orb.fixture:setFriction(0) -- Apply damping for friction/decay
+    	-- orb.fixture:setFriction(0) -- Apply damping for friction/decay
 	end
 end
 
@@ -215,7 +215,8 @@ function drag_orb(world, orb, x, y,dt)
     local dy = y - orbY
     local distance = math.sqrt(dx * dx + dy * dy)
 
-    local impulse = dt*100
+    local mass = body:getMass()
+    local impulse = dt*700*math.pow(mass,0.8)
     body:applyLinearImpulse(dx * impulse, dy * impulse)
 
     -- debug_orb(orb)
