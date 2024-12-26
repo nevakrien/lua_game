@@ -21,8 +21,6 @@ local canvas = nil
 
 
 function love.load()
-    love.physics.setMeter(10)
-
     world = make_world()
     love.window.setTitle("Love2D Window Resize with Aspect Ratio")
     if isMobile then

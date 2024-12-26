@@ -1,7 +1,9 @@
 allOrbs = {}
 
 function make_world()
+    love.physics.setMeter(30)
     local world = love.physics.newWorld(0, 0, true)
+
     add_walls(world)
 
 
@@ -56,6 +58,7 @@ function add_basic_orb(world,x,y)
     orb.shape = love.physics.newCircleShape(radius)
     orb.fixture = love.physics.newFixture(orb.body, orb.shape, 1)
     orb.fixture:setRestitution(0.8)
+    orb.body:setBullet(true)
 
 
     -- Define the render closure
@@ -79,6 +82,9 @@ function add_rectangle_orb(world, x, y, width, height)
     orb.body = love.physics.newBody(world, x, y, "dynamic") -- Static for simplicity
     orb.shape = love.physics.newRectangleShape(width, height)
     orb.fixture = love.physics.newFixture(orb.body, orb.shape, 1)
+    orb.fixture:setRestitution(0.8)
+    orb.body:setBullet(true)
+
 
     -- Define the render closure
     orb.render = function(orb)
@@ -159,7 +165,7 @@ function drag_orb(world, orb, x, y,dt)
     local dy = y - orbY
     local distance = math.sqrt(dx * dx + dy * dy)
 
-    local impulse = dt*750
+    local impulse = dt*100
     body:applyLinearImpulse(dx * impulse, dy * impulse)
 
     -- debug_orb(orb)
