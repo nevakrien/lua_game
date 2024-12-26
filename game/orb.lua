@@ -1,8 +1,11 @@
+local input = require("collisions")
+
 allOrbs = {}
 
 function make_world()
     love.physics.setMeter(30)
     local world = love.physics.newWorld(0, 0, true)
+    world:setCallbacks(beginContact)
 
     add_walls(world)
 
@@ -41,8 +44,7 @@ function add_static_wall(world, x, y, width, height)
     local fixture = love.physics.newFixture(body, shape, 1)
 
     -- Optionally set other properties, such as friction or restitution, if needed
-    fixture:setFriction(0.5) -- Example: set friction
-    fixture:setRestitution(0) -- No bounce
+    fixture:setRestitution(0.0) -- No bounce
 end
 
 function add_basic_orb(world,x,y)

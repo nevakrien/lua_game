@@ -31,6 +31,8 @@ function love.load()
     love.graphics.setBackgroundColor(0.0, 0.0, 0.0)
     love.mouse.setVisible(false) -- Hide the default cursor
 
+    collisionShader = love.graphics.newShader("collision_shader.glsl")
+
     remake_canvas()
 end
 
@@ -62,6 +64,10 @@ end
 function love.update(dt)
     -- Regularly "poke" the system to prevent sleep
     love.event.pump()
+
+    update_collisions()
+
+
     -- print("update")
     if selectedOrb ~=nil then
         drag_orb(world,selectedOrb,dragX,dragY,dt)
@@ -75,15 +81,10 @@ function main_render()
     love.graphics.setColor(0.8, 0.3, 0.3)
     -- love.graphics.rectangle("fill", 40*aspectRatio,43, 30,  10)
 
-
-    -- love.graphics.setColor(0.7, 0.4, 0.3)
-    -- love.graphics.rectangle("fill", 0.5, 0.5, aspectRatio,0.3)
-
-
-    love.graphics.setColor(0.6, 0.3, 0.6)
-    love.graphics.circle("fill", dragX, dragY, 5) -- Circle size as fraction of height
-
     render_orbs(allOrbs)
+    render_collisions()
+
+    
 end
 
 function love.draw()
