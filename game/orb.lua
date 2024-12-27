@@ -1,4 +1,5 @@
-local input = require("collisions")
+local collisions_mod = require("collisions")
+local trail_mod = require("trail")
 
 allOrbs = {}
 
@@ -64,12 +65,13 @@ function add_basic_orb(world,x,y)
     orb.fixture:setRestitution(0.8)
     orb.body:setBullet(true)
 
+    orb.mesh =create_circle_mesh(2*radius, 100)
+
 
     -- Define the render closure
     orb.render = function(orb)
-        local x, y = orb.body:getPosition() -- Get current position of the orb
         love.graphics.setColor({0.3, 1.0, 0.3}) -- Set the orb's color
-        love.graphics.circle("fill", x , y ,radius)
+        love.graphics.circle("fill", 0 , 0 ,radius)
     end
 
     -- Assign the orb as user data to the body
@@ -89,18 +91,14 @@ function add_rectangle_orb(world, x, y, width, height)
     orb.fixture:setRestitution(0.8)
     orb.body:setBullet(true)
 
+    local big = math.max(width,height)
+    orb.mesh = create_rectangle_mesh(width+big, height+big)
+
 
     -- Define the render closure
     orb.render = function(orb)
-        local x, y = orb.body:getPosition() -- Get the current position of the orb
-        local angle = orb.body:getAngle()  -- Get the current rotation of the orb
-        love.graphics.setColor(1.0, 0.3, 0.3) -- Set the orb's color
-        -- Draw the rectangle at its position and angle
-        love.graphics.push()
-        love.graphics.translate(x, y)
-        love.graphics.rotate(angle)
+        love.graphics.setColor(1.0, 0.3, 0.3)
         love.graphics.rectangle("fill", -width / 2, -height / 2, width, height)
-        love.graphics.pop()
     end
 
     -- Assign the orb as user data to the body
@@ -128,18 +126,14 @@ function add_triangle_orb(world, x, y, side_length)
     orb.fixture:setRestitution(0.8)
     orb.body:setBullet(true)
 
+    
+    -- orb.mesh = create_triangle_mesh(2*side_length)
+    orb.mesh = create_circle_mesh(side_length,100)
+
     -- Define the render closure
     orb.render = function(orb)
-        local x, y = orb.body:getPosition() -- Get the current position of the orb
-        local angle = orb.body:getAngle()  -- Get the current rotation of the orb
-        love.graphics.setColor(0.1, 0.2, 0.8) -- Set the orb's color (darkish blue)
-        
-        -- Draw the triangle at its position and angle
-        love.graphics.push()
-        love.graphics.translate(x, y)
-        love.graphics.rotate(angle)
+        love.graphics.setColor(0.1, 0.2, 0.8) 
         love.graphics.polygon("fill", vertices)
-        love.graphics.pop()
     end
 
     -- Assign the orb as user data to the body
@@ -150,9 +144,37 @@ end
 
 
 function render_orbs(orbs)
-	for _, orb in ipairs(orbs) do
-	    orb.render(orb)
+    local t = love.timer.getTime() - startTime
+
+	for i, orb in ipairs(orbs) do
+        love.graphics.push()
+        
+        local x, y = orb.body:getPosition() -- Get the current position of the orb
+        local angle = orb.body:getAngle()  -- Get the current rotation of the orb
+        love.graphics.translate(x, y)
+        love.graphics.rotate(angle)
+	    
+        orb.render(orb)
+        -- love.graphics.setColor({1.0, 1.0, 1.0,0.5})
+        love.graphics.setShader(speedShader)
+        local vx,vy = orb.body:getLinearVelocity()
+        speedShader:send("speed", {vx,vy})
+        speedShader:send("angular", orb.body:getAngularVelocity())
+        speedShader:send("t", t)
+        speedShader:send("seed", math.abs(math.sin(100*i)))
+
+
+        love.graphics.draw(orb.mesh)
+        love.graphics.setShader()
+
+        
+        love.graphics.pop()
+
+
+
 	end
+
+
 end
 
 function queryOne(world, x1, y1, x2, y2)

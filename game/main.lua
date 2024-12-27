@@ -31,7 +31,9 @@ function love.load()
     love.graphics.setBackgroundColor(0.0, 0.0, 0.0)
     love.mouse.setVisible(false) -- Hide the default cursor
 
+    startTime = love.timer.getTime()
     collisionShader = love.graphics.newShader("collision_shader.glsl")
+    speedShader = love.graphics.newShader("speed.glsl")
 
     remake_canvas()
 end
