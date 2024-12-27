@@ -55,7 +55,7 @@ function render_collisions()
         -- Draw a rectangle with the shader
         local size = 5+0.14*col.strength;
 
-        -- size = size*2
+        -- size = size*1.2
         -- local size = 5+(14/100)*math.min(100,col.strength);
         
         -- Send t to the shader
