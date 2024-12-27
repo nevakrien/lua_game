@@ -14,8 +14,11 @@ function make_world()
     add_basic_orb(world,100,100)
     add_basic_orb(world,0,10)
 
-    add_rectangle_orb(world, 40*aspectRatio,43, 30,  10)
+    add_rectangle_orb(world, 40*aspectRatio,43, 33,  11)
     add_triangle_orb(world,100,0,30)
+    add_triangle_orb(world,100,0,7)
+    add_triangle_orb(world,100,0,7)
+    add_triangle_orb(world,100,0,7)
 
 
     return world
@@ -61,15 +64,15 @@ function add_basic_orb(world,x,y)
     orb.body = love.physics.newBody(world, x, y, "dynamic")
     orb.shape = love.physics.newCircleShape(radius)
     orb.fixture = love.physics.newFixture(orb.body, orb.shape, 1)
-    orb.fixture:setRestitution(0.95)
+    orb.fixture:setRestitution(0.93)
+    --orb.fixture:setFriction(1.0)
     orb.body:setBullet(true)
 
 
     -- Define the render closure
     orb.render = function(orb)
-        local x, y = orb.body:getPosition() -- Get current position of the orb
         love.graphics.setColor({0.3, 1.0, 0.3}) -- Set the orb's color
-        love.graphics.circle("fill", x , y ,radius)
+        love.graphics.circle("fill", 0 , 0 ,radius)
     end
 
     -- Assign the orb as user data to the body
@@ -87,20 +90,17 @@ function add_rectangle_orb(world, x, y, width, height)
     orb.shape = love.physics.newRectangleShape(width, height)
     orb.fixture = love.physics.newFixture(orb.body, orb.shape, 1)
     orb.fixture:setRestitution(0.8)
+    --orb.fixture:setFriction(1.0)
+
     orb.body:setBullet(true)
 
 
     -- Define the render closure
     orb.render = function(orb)
-        local x, y = orb.body:getPosition() -- Get the current position of the orb
-        local angle = orb.body:getAngle()  -- Get the current rotation of the orb
         love.graphics.setColor(1.0, 0.3, 0.3) -- Set the orb's color
         -- Draw the rectangle at its position and angle
-        love.graphics.push()
-        love.graphics.translate(x, y)
-        love.graphics.rotate(angle)
+
         love.graphics.rectangle("fill", -width / 2, -height / 2, width, height)
-        love.graphics.pop()
     end
 
     -- Assign the orb as user data to the body
@@ -126,20 +126,16 @@ function add_triangle_orb(world, x, y, side_length)
     orb.shape = love.physics.newPolygonShape(vertices)
     orb.fixture = love.physics.newFixture(orb.body, orb.shape, 1)
     orb.fixture:setRestitution(0.8)
+    --orb.fixture:setFriction(1.0)
+    
     orb.body:setBullet(true)
 
     -- Define the render closure
     orb.render = function(orb)
-        local x, y = orb.body:getPosition() -- Get the current position of the orb
-        local angle = orb.body:getAngle()  -- Get the current rotation of the orb
         love.graphics.setColor(0.1, 0.2, 0.8) -- Set the orb's color (darkish blue)
         
         -- Draw the triangle at its position and angle
-        love.graphics.push()
-        love.graphics.translate(x, y)
-        love.graphics.rotate(angle)
         love.graphics.polygon("fill", vertices)
-        love.graphics.pop()
     end
 
     -- Assign the orb as user data to the body
@@ -151,7 +147,15 @@ end
 
 function render_orbs(orbs)
 	for _, orb in ipairs(orbs) do
-	    orb.render(orb)
+        love.graphics.push()
+            local x, y = orb.body:getPosition()
+            local angle = orb.body:getAngle()
+            love.graphics.translate(x, y)
+            love.graphics.rotate(angle)
+            
+            orb.render(orb)
+        love.graphics.pop()
+
 	end
 end
 

@@ -65,8 +65,7 @@ function render_collisions()
         
         collisionShader:send("t", t)
         collisionShader:send("seed", col.seed)
-        collisionShader:send("strength", col.seed)
-        -- collisionShader:send("strength", col.strength)
+        collisionShader:send("strength", col.strength)
 
         -- Draw
         love.graphics.push()

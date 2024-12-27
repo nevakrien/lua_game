@@ -29,6 +29,7 @@ vec4 effect(vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords) 
     float random = hash(texture_coords,t,seed);
     float random2 = mod(17.0*random,1.0);
 
+    float power = 1.0-exp(-strength/100.0);
     // Smooth transparency effect
     float phase = sin(PI*t);
     if (phase <= 0.0) {
@@ -39,11 +40,14 @@ vec4 effect(vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords) 
 
 
     // Color gradient: orange (inner) to red (outer)
-    vec3 innerColor = vec3(1.0, 1.0, 0.1+0.15*strength); // Orange
-    vec3 outerColor = vec3(0.9, 0.4, 0.5); // Red
+    vec3 innerColor = vec3(1.0, 1.0, 0.1); // Orange
+    vec3 blueColor = vec3(0.0,0.0,1.0);
+    innerColor = mix(innerColor,blueColor,0.2*power);
+
+    vec3 outerColor = vec3(0.9, 0.4, 0.3); // Red
     vec3 explosionColor = mix(innerColor, outerColor, dist / (0.4 * phase));
     
-    explosionColor = mix(explosionColor, vec3(1.0,0.5+random*0.3,0.1+0.2*random2*strength), 0.5-0.2*strength);
+    explosionColor = mix(explosionColor, vec3(1.0,0.5+random*0.3,0.1+0.2*random2*power), 0.5-0.2*power);
 
     // Return the calculated color with transparency
     return vec4(explosionColor, alpha);
