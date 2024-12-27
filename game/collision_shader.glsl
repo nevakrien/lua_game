@@ -40,13 +40,14 @@ vec4 effect(vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords) 
 
 
     // Color gradient: orange (inner) to red (outer)
-    vec3 innerColor = vec3(0.7, 1.0, 0.3);
-    vec3 blueColor = vec3(0.3,0.1,1.0);
-    innerColor = mix(innerColor,blueColor,power*0.3*abs(sin(4.7*t)));
+    vec3 innerColor = vec3(255.0/255.0, 237.0/255.0, 76.0/255.0);
+    // vec3 fastColor = vec3(255.0/255.0,234.0/255.0,128.0/255.0);
+    vec3 fastColor = vec3(255.0/255.0,244.0/255.0,186.0/255.0);
+    innerColor = mix(innerColor,fastColor,power*0.5*abs(sin(1.2*t)));
 
     vec3 outerColor = vec3(0.8+0.2*power, 0.1+0.4*power, 0.0);
     // vec3 explosionColor = mix(innerColor, outerColor, dist / (0.4 * phase));
-    vec3 explosionColor = mix(outerColor,innerColor, alpha*0.5);//*(1-power*power)
+    vec3 explosionColor = mix(outerColor,innerColor, alpha*0.8);//*(1-power*power)
     
     explosionColor = mix(explosionColor, vec3(0.5+random*0.3,0.5+random*0.3,0.1+0.2*random2*power), 0.3);
 
