@@ -61,7 +61,7 @@ function add_basic_orb(world,x,y)
     orb.body = love.physics.newBody(world, x, y, "dynamic")
     orb.shape = love.physics.newCircleShape(radius)
     orb.fixture = love.physics.newFixture(orb.body, orb.shape, 1)
-    orb.fixture:setRestitution(0.8)
+    orb.fixture:setRestitution(0.95)
     orb.body:setBullet(true)
 
 
@@ -216,7 +216,7 @@ function drag_orb(world, orb, x, y,dt)
     local distance = math.sqrt(dx * dx + dy * dy)
 
     local mass = body:getMass()
-    local impulse = dt*700*(mass+0.4)
+    local impulse = dt*700*(mass+0.7)
     body:applyLinearImpulse(dx * impulse, dy * impulse)
 
     -- debug_orb(orb)
