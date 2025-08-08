@@ -9,6 +9,7 @@ targetWidth ,targetHeight = 0 , 0
 world = nil --global so input functions could use its
 
 local input = require("input")
+local score_mod = require("score")
 local orb_mod = require("orb")
 
 aspectRatio = 16 / 9 -- Default aspect ratio (can be changed dynamically)
@@ -109,6 +110,9 @@ function love.draw()
 
     -- Center the canvas on the screen
     love.graphics.draw(canvas, offsetX, offsetY)
+
+    -- score is outside the main render
+    draw_score()
 
     -- mouse is outside the main render
     if not isMobile then

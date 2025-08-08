@@ -4,6 +4,8 @@ StartCol = {}
 local colLifetime = 0.2--10--0.2
 dummy_texture = love.graphics.newCanvas(1, 1)
 
+local score_mod = require("score")
+
 
 function get_key(a,b)
     return tostring(a) .. "-" .. tostring(b)
@@ -33,6 +35,7 @@ function postSolve(a, b, contact, normalImpulse1, tangentImpulse1, normalImpulse
 
     -- Store the collision data with strength
     table.insert(collisions, {x = x, y = y, time = love.timer.getTime(), strength = strength,seed=seed})
+    add_score(1+strength/100)
 end
 
 
