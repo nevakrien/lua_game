@@ -20,7 +20,6 @@ function make_world()
     add_triangle_orb(world,100,0,7)
     add_triangle_orb(world,100,0,7)
 
-
     return world
 end
 
