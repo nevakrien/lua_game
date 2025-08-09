@@ -1,5 +1,9 @@
 local menu = {}
 
+function load_settings()
+    load_explotion()
+end
+
 -- Menu state variables
 local options = pauseOptions  -- Default to pauseOptions
 local selectedOption = 1
@@ -9,19 +13,55 @@ local undoStack = {}  -- Stack to store the history of active menus
 
 local cols = require("collisions")
 
+------------explotion stuff--------------------------
+local ExplosionTypes = {
+    SMALL = "SMALL",
+    NORMAL = "NORMAL",
+    BIG = "BIG",
+    ABSURD = "ABSURD"
+}
+
+local selectedExplotion = ExplosionTypes.NORMAL
+
+
+local explosionMultipliers = {
+    [ExplosionTypes.SMALL] = 1,
+    [ExplosionTypes.NORMAL] = 2,
+    [ExplosionTypes.BIG] = 3,
+    [ExplosionTypes.ABSURD] = 10
+}
+
+local EXPLOTION_FILE = "explotion_mul.txt"
+
+function setExplotion(type)
+    selectedExplotion = type
+    ColstrenghMul = explosionMultipliers[type]
+    love.filesystem.write(EXPLOTION_FILE, type)
+end
+
+function load_explotion()
+    local contents, err = love.filesystem.read(EXPLOTION_FILE)
+    if not contents then return false, err end
+    if ExplosionTypes[contents] then
+        setExplotion(contents)
+    end
+end
+---------------------------------------------------------------
+
 local explosionsOptions = {
-    {name = "Small", action = function() ColstrenghMul=1 end},
-    {name = "Normal", action = function() ColstrenghMul=2 end},
-    {name = "Big", action = function() ColstrenghMul=3 end},
-    {name = "Absurd", action = function() ColstrenghMul=10 end},
+    {name = "Small", action = function() setExplotion(ExplosionTypes.SMALL) end},
+    {name = "Normal", action = function() setExplotion(ExplosionTypes.NORMAL) end},
+    {name = "Big", action = function() setExplotion(ExplosionTypes.BIG) end},
+    {name = "Absurd", action = function() setExplotion(ExplosionTypes.ABSURD) end},
     {name = "Back", action = function() menu.toggle() end},
 }
 
 function set_explosionsOptions()
     menu.pushMenu(explosionsOptions)
-    if ColstrenghMul == 2 then selectedOption=2 end
-    if ColstrenghMul == 3 then selectedOption=3 end
-    if ColstrenghMul == 10 then selectedOption=4 end
+    if selectedExplotion == ExplosionTypes.SMALL then selectedOption=1 end
+    if selectedExplotion == ExplosionTypes.NORMAL then selectedOption=2 end
+    if selectedExplotion == ExplosionTypes.BIG then selectedOption=3 end
+    if selectedExplotion == ExplosionTypes.ABSURD then selectedOption=4 end
 
     hoverOption = selectedOption
     --print("found ",selectedOption)
@@ -29,8 +69,6 @@ function set_explosionsOptions()
 end
 -- Settings menu options (submenu)
 local settingsOptions = {
-    {name = "Explosions", action = set_explosionsOptions},
-    {name = "Explosions", action = set_explosionsOptions},
     {name = "Explosions", action = set_explosionsOptions},
     {name = "Back", action = function() menu.toggle() end},  -- Back option to go back to previous menu
 }

@@ -7,7 +7,12 @@ minEdge,scaleFactor = 1,1
 targetWidth ,targetHeight = 0 , 0
 
 world = nil --global so input functions could use its
+aspectRatio = 16 / 9 -- Default aspect ratio (can be changed dynamically)
 
+worldWidth = 100 * aspectRatio
+worldHeight = 100
+
+love.filesystem.setIdentity("nevakrien.boomboom")
 local input = require("input")
 local menu = require("menu")
 local score_mod = require("score")
@@ -15,17 +20,14 @@ local orb_mod = require("orb")
 local cols = require("collisions")
 
 
-aspectRatio = 16 / 9 -- Default aspect ratio (can be changed dynamically)
 
-worldWidth = 100 * aspectRatio
-worldHeight = 100
 
 local canvas = nil
 
-love.filesystem.setIdentity("nevakrien.boomboom")
 
 
 function love.load()
+    load_settings()
     load_score()
     world = make_world()
     love.window.setTitle("Love2D Window Resize with Aspect Ratio")

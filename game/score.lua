@@ -24,18 +24,16 @@ function draw_score()
 end
 
 -- Save current score to disk (returns ok, err)
-function save_score(filename)
-    filename = filename or SAVE_FILE
-    return love.filesystem.write(filename, tostring(score))
+function save_score()
+    return love.filesystem.write(SAVE_FILE, tostring(score))
 end
 
 -- Load score from disk (returns ok, err)
-function load_score(filename)
-    filename = filename or SAVE_FILE
-    if not love.filesystem.getInfo(filename) then
+function load_score()
+    if not love.filesystem.getInfo(SAVE_FILE) then
         return false, "no save"
     end
-    local contents, err = love.filesystem.read(filename)
+    local contents, err = love.filesystem.read(SAVE_FILE)
     if not contents then return false, err end
     local n = tonumber(contents)
     if not n then return false, "corrupt save" end
