@@ -22,6 +22,7 @@ local canvas = nil
 
 
 function love.load()
+    load_score()
     world = make_world()
     love.window.setTitle("Love2D Window Resize with Aspect Ratio")
     if isMobile then
@@ -35,6 +36,17 @@ function love.load()
     collisionShader = love.graphics.newShader("collision_shader.glsl")
 
     remake_canvas()
+end
+
+function love.keypressed(k)
+   if k == 'escape' then
+      reset_score()
+      save_score()
+   end
+end
+
+function love.quit()
+    save_score()
 end
 
 function remake_canvas() 
@@ -67,7 +79,7 @@ function love.update(dt)
     love.event.pump()
 
     update_collisions()
-
+    save_score()
 
     -- print("update")
     if selectedOrb ~=nil then
