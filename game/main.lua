@@ -75,6 +75,14 @@ end
 
 
 function love.update(dt)
+    if not love.window.hasFocus() then
+        return
+    end
+
+    if dt > 0.3 then
+        dt = 0.3
+    end
+    
     -- Regularly "poke" the system to prevent sleep
     love.event.pump()
 
