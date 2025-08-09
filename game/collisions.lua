@@ -36,7 +36,7 @@ function postSolve(a, b, contact, normalImpulse1, tangentImpulse1, normalImpulse
 
     -- Calculate the total collision strength
     -- local strength = math.sqrt(totalNormalImpulse^2 + totalTangentImpulse^2)
-    local strength = math.sqrt(totalNormalImpulse^2) * ColstrenghMul
+    local strength = math.sqrt(totalNormalImpulse^2)
 
     -- Get the collision position (if needed for debugging or visualization)
     local x, y = contact:getPositions()
@@ -65,7 +65,8 @@ function render_collisions()
     
     for _, col in ipairs(collisions) do
         -- Draw a rectangle with the shader
-        local size = 5+0.14*col.strength;
+        local s = ColstrenghMul * col.strength
+        local size = 5+0.14*s;
 
         -- size = size*1.2
         -- local size = 5+(14/100)*math.min(100,col.strength);
@@ -73,11 +74,11 @@ function render_collisions()
         -- Send t to the shader
         local elapsedTime = love.timer.getTime() - col.time
         local t = math.min(elapsedTime / colLifetime, 1.0) -- Clamp t between 0 and 1
-        local strength = math.min(0.14*col.strength,1)
+        -- local strength = math.min(0.14*s,1)
         
         collisionShader:send("t", t)
         collisionShader:send("seed", col.seed)
-        collisionShader:send("strength", col.strength)
+        collisionShader:send("strength", s)
 
         -- Draw
         love.graphics.push()

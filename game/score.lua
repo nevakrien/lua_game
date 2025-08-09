@@ -16,11 +16,11 @@ function draw_score()
 
     -- Draw shadow for readability
     love.graphics.setColor(0, 0, 0, 0.6)
-    love.graphics.print("Score: " .. score, 12, 12)
+    love.graphics.print("score: " .. score, 12, 12)
 
     -- Draw main text
     love.graphics.setColor(1, 1, 0.87)
-    love.graphics.print("Score: " .. score, 10, 10)
+    love.graphics.print("score: " .. score, 10, 10)
 end
 
 -- Save current score to disk (returns ok, err)
