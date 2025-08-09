@@ -35,7 +35,7 @@ function drag_start(world,x, y)
     selectedOrb = queryOne(world,dragX-0.01,dragY-0.01,dragX+0.01,dragY+0.01)
     select_orb(selectedOrb)
     
-    print("selected orb", selectedOrb)
+    -- print("selected orb", selectedOrb)
 
     drag_handle(world,x,y)
 end
