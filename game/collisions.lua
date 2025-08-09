@@ -7,6 +7,11 @@ dummy_texture = love.graphics.newCanvas(1, 1)
 local score_mod = require("score")
 
 
+function clear_collisions()
+    collisions = {}
+    StartCol = {}
+end
+
 function get_key(a,b)
     return tostring(a) .. "-" .. tostring(b)
 end

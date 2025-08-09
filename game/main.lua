@@ -9,6 +9,7 @@ targetWidth ,targetHeight = 0 , 0
 world = nil --global so input functions could use its
 
 local input = require("input")
+local menu = require("menu")
 local score_mod = require("score")
 local orb_mod = require("orb")
 
@@ -39,11 +40,13 @@ function love.load()
     remake_canvas()
 end
 
-function love.keypressed(k)
-   if k == 'escape' then
-      reset_score()
-      save_score()
-   end
+function restart()
+    clear_collisions()
+    allOrbs = {}
+    world.destroy(world)
+    world = make_world()
+
+    reset_score()
 end
 
 function love.quit()
@@ -76,7 +79,7 @@ end
 
 
 function love.update(dt)
-    if not love.window.hasFocus() then
+    if not love.window.hasFocus() or paused then
         return
     end
 
@@ -134,6 +137,10 @@ function love.draw()
 
     -- score is outside the main render
     draw_score()
+
+    if paused then
+        menu.draw()
+    end
 
     -- mouse is outside the main render
     if not isMobile then

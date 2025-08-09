@@ -1,13 +1,32 @@
 isPressing = false
 screenDragX, screenDragY = 0, 0
-
+paused = false
 selectedOrb = nil
 
 if isMobile then
     touches = {}
 end
 
+local menu = require("menu")
+
+
+function love.keypressed(k)
+   if k == 'escape' then
+      menu.toggle()
+      if paused and selectedOrb then
+        unselect_orb(selectedOrb)
+        selectedOrb = nil 
+        isPressing = false
+      end
+   end
+end
+
 function drag_start(world,x, y)
+    if paused then
+        menu.checkHover(x,y)
+        return
+    end
+
     update_drag(x, y)
 
 
@@ -31,11 +50,20 @@ end
 
 -- Function to handle dragging (update position)
 function drag_handle(world,x, y)
+    if paused then
+        menu.checkHover(x,y)
+        return
+    end
+    if not isPressing then return end
     update_drag(x, y)
 end
 
 -- Function to handle releasing a drag
 function drag_release(world,x, y)
+    if paused then
+        menu.checkClick(x,y)
+        return
+    end
     update_drag(x, y)
     unselect_orb(selectedOrb)
 
@@ -57,9 +85,7 @@ function love.mousereleased(x, y, button, istouch, presses)
 end
 
 function love.mousemoved(x, y, dx, dy, istouch)
-    if isPressing then
-        drag_handle(world,x, y)
-    end
+    drag_handle(world,x, y)
 end
 
 function love.touchpressed(id, x, y, dx, dy, pressure)
@@ -71,7 +97,5 @@ function love.touchreleased(id, x, y, dx, dy, pressure)
 end
 
 function love.touchmoved(id, x, y, dx, dy, pressure)
-    if isPressing then
-        drag_handle(world,x, y)
-    end
+    drag_handle(world,x, y)
 end
