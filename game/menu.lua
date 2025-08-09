@@ -5,7 +5,7 @@ function load_settings()
 end
 
 -- Menu state variables
-local options = pauseOptions  -- Default to pauseOptions
+local currentMenu = pauseMenu  -- Default to the full pauseMenu
 local selectedOption = 1
 local hoverOption = 1
 local optionHeight = 40
@@ -13,7 +13,7 @@ local undoStack = {}  -- Stack to store the history of active menus
 
 local cols = require("collisions")
 
-------------explotion stuff--------------------------
+------------explosion stuff--------------------------
 local ExplosionTypes = {
     SMALL = "SMALL",
     NORMAL = "NORMAL",
@@ -22,7 +22,6 @@ local ExplosionTypes = {
 }
 
 local selectedExplotion = ExplosionTypes.NORMAL
-
 
 local explosionMultipliers = {
     [ExplosionTypes.SMALL] = 1,
@@ -48,57 +47,63 @@ function load_explotion()
 end
 ---------------------------------------------------------------
 
-local explosionsOptions = {
-    {name = "Small", action = function() setExplotion(ExplosionTypes.SMALL) end},
-    {name = "Normal", action = function() setExplotion(ExplosionTypes.NORMAL) end},
-    {name = "Big", action = function() setExplotion(ExplosionTypes.BIG) end},
-    {name = "Absurd", action = function() setExplotion(ExplosionTypes.ABSURD) end},
-    {name = "Back", action = function() menu.toggle() end},
+-- Define explosion options as part of the explosion menu
+local explosionsMenu = {
+    menu_name = "Explosion Settings",
+    options = {
+        {name = "Small", action = function() setExplotion(ExplosionTypes.SMALL) end},
+        {name = "Normal", action = function() setExplotion(ExplosionTypes.NORMAL) end},
+        {name = "Big", action = function() setExplotion(ExplosionTypes.BIG) end},
+        {name = "Absurd", action = function() setExplotion(ExplosionTypes.ABSURD) end},
+        {name = "Back", action = function() menu.toggle() end},
+    }
 }
 
 function set_explosionsOptions()
-    menu.pushMenu(explosionsOptions)
+    menu.pushMenu(explosionsMenu)
     if selectedExplotion == ExplosionTypes.SMALL then selectedOption=1 end
     if selectedExplotion == ExplosionTypes.NORMAL then selectedOption=2 end
     if selectedExplotion == ExplosionTypes.BIG then selectedOption=3 end
     if selectedExplotion == ExplosionTypes.ABSURD then selectedOption=4 end
 
     hoverOption = selectedOption
-    --print("found ",selectedOption)
-
 end
--- Settings menu options (submenu)
-local settingsOptions = {
-    {name = "Explosions", action = set_explosionsOptions},
-    {name = "Back", action = function() menu.toggle() end},  -- Back option to go back to previous menu
+
+-- Define settings menu with explosions option
+local settingsMenu = {
+    menu_name = "Settings",
+    options = {
+        {name = "Explosions", action = set_explosionsOptions},
+        {name = "Back", action = function() menu.toggle() end},  -- Back option to go back to previous menu
+    }
 }
 
--- Default pause options
-local pauseOptions = {
-    {name = "Resume", action = function() menu.toggle() end},
-    {name = "Settings", action = function() menu.pushMenu(settingsOptions) end},  -- Added Settings menu option
-    {name = "Restart", action = function() restart(); menu.toggle() end},
-    {name = "Quit", action = function() love.event.quit() end},
+-- Define pause menu
+local pauseMenu = {
+    menu_name = "Pause Menu",
+    options = {
+        {name = "Resume", action = function() menu.toggle() end},
+        {name = "Settings", action = function() menu.pushMenu(settingsMenu) end},
+        {name = "Restart", action = function() restart(); menu.toggle() end},
+        {name = "Quit", action = function() love.event.quit() end},
+    }
 }
 
 -- Set custom options or revert to default
-function menu.setOptions(newOptions)
-    --print("setting options")
-    if newOptions then
-        options = newOptions
+function menu.setOptions(newMenu)
+    if newMenu then
+        currentMenu = newMenu
     else
-        options = pauseOptions
+        currentMenu = pauseMenu
     end
     selectedOption = 1
     hoverOption = 1
 end
 
 -- Push a new menu onto the undo stack
-function menu.pushMenu(newOptions)
-    --print("pushing menu")
-
-    table.insert(undoStack, options)
-    options = newOptions
+function menu.pushMenu(newMenu)
+    table.insert(undoStack, currentMenu)
+    currentMenu = newMenu
     selectedOption = 1
 end
 
@@ -106,21 +111,21 @@ end
 function menu.toggle()
     if paused then
         if #undoStack > 0 then
-            options = table.remove(undoStack)
+            currentMenu = table.remove(undoStack)
         else
             paused = false
-            options = pauseOptions
+            currentMenu = pauseMenu
         end
     else
         paused = true
-        options = pauseOptions
+        currentMenu = pauseMenu
     end
     selectedOption = 1
 end
 
 -- Select an option
 function menu.select()
-    local option = options[selectedOption]
+    local option = currentMenu.options[selectedOption]
     if option and option.action then
         option.action()
     end
@@ -129,10 +134,9 @@ end
 -- Detect click on menu option
 function menu.checkClick(x, y)
     local startY = love.graphics.getHeight() / 4 + 40
-    for i, option in ipairs(options) do
+    for i, option in ipairs(currentMenu.options) do
         local optionY = startY + (i - 1) * optionHeight
         if y >= optionY and y <= optionY + optionHeight then
-            --print("click")
             selectedOption = i
             menu.select()
             return
@@ -143,11 +147,10 @@ end
 -- Detect hover over menu options
 function menu.checkHover(x, y)
     local startY = love.graphics.getHeight() / 4 + 40
-    for i, option in ipairs(options) do
+    for i, option in ipairs(currentMenu.options) do
         local optionY = startY + (i - 1) * optionHeight
         if y >= optionY and y <= optionY + optionHeight then
             hoverOption = i
-            -- print("hover")
             break
         end
     end
@@ -159,10 +162,10 @@ function menu.draw()
     love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
     
     love.graphics.setColor(1, 1, 1)
-    love.graphics.printf("Game Menu", 0, love.graphics.getHeight() / 4 - 40, love.graphics.getWidth(), "center")
+    love.graphics.printf(currentMenu.menu_name, 0, love.graphics.getHeight() / 4 - 40, love.graphics.getWidth(), "center")
     
     local startY = love.graphics.getHeight() / 4 + 40
-    for i, option in ipairs(options) do
+    for i, option in ipairs(currentMenu.options) do
         local color = {1, 1, 1}
         if i == hoverOption then
             color = {0.8, 0.3, 0.3}
