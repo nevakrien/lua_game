@@ -19,6 +19,7 @@ worldHeight = 100
 
 local canvas = nil
 
+love.filesystem.setIdentity("nevakrien.boomboom")
 
 
 function love.load()
@@ -82,7 +83,7 @@ function love.update(dt)
     if dt > 0.3 then
         dt = 0.3
     end
-    
+
     -- Regularly "poke" the system to prevent sleep
     love.event.pump()
 
