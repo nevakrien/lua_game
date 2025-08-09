@@ -89,14 +89,15 @@ function love.mousemoved(x, y, dx, dy, istouch)
     drag_handle(world,x, y)
 end
 
-function love.touchpressed(id, x, y, dx, dy, pressure)
-    drag_start(world,x, y)
-end
+-- function love.touchpressed(id, x, y, dx, dy, pressure)
+--     drag_start(world,x, y)
+-- end
 
-function love.touchreleased(id, x, y, dx, dy, pressure)
-    drag_release(world,x, y)
-end
+-- function love.touchreleased(id, x, y, dx, dy, pressure)
+--     score = score + 1
+--     drag_release(world,x, y)
+-- end
 
-function love.touchmoved(id, x, y, dx, dy, pressure)
-    drag_handle(world,x, y)
-end
+-- function love.touchmoved(id, x, y, dx, dy, pressure)
+--     drag_handle(world,x, y)
+-- end

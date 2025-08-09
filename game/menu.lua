@@ -30,6 +30,8 @@ end
 -- Settings menu options (submenu)
 local settingsOptions = {
     {name = "Explosions", action = set_explosionsOptions},
+    {name = "Explosions", action = set_explosionsOptions},
+    {name = "Explosions", action = set_explosionsOptions},
     {name = "Back", action = function() menu.toggle() end},  -- Back option to go back to previous menu
 }
 
@@ -40,10 +42,6 @@ local pauseOptions = {
     {name = "Restart", action = function() restart(); menu.toggle() end},
     {name = "Quit", action = function() love.event.quit() end},
 }
-
-
-
-
 
 -- Set custom options or revert to default
 function menu.setOptions(newOptions)
@@ -60,6 +58,7 @@ end
 -- Push a new menu onto the undo stack
 function menu.pushMenu(newOptions)
     --print("pushing menu")
+
     table.insert(undoStack, options)
     options = newOptions
     selectedOption = 1
@@ -79,16 +78,6 @@ function menu.toggle()
         options = pauseOptions
     end
     selectedOption = 1
-end
-
--- Navigate through the options
-function menu.navigate(direction)
-    selectedOption = selectedOption + direction
-    if selectedOption < 1 then
-        selectedOption = #options
-    elseif selectedOption > #options then
-        selectedOption = 1
-    end
 end
 
 -- Select an option

@@ -131,6 +131,9 @@ launch_app() {
   app_id="$(get_app_id)"
   msg "Launching package: $app_id"
   "$ADB_BIN" shell monkey -p "$app_id" -c android.intent.category.LAUNCHER 1
+
+  # msg "Streaming logs for $app_id..."
+  # "$ADB_BIN" logcat -v time -s "boomboom"
 }
 
 open_out() {
@@ -139,10 +142,10 @@ open_out() {
   fi
 }
 
-clean_all() {
-  msg "Cleaning local output + Gradle build"
+clean_local() {
+  msg "Cleaning local output"
   rm -rf "$OUT_DIR"
-  ( cd "$ANDROID_DIR" && ./gradlew clean )
+  # ( cd "$ANDROID_DIR" && ./gradlew clean )
 }
 
 # -------- Commands --------
@@ -188,7 +191,6 @@ case "$cmd" in
     sign_apk
     install_apk
     launch_app
-    open_out
     ;;
   open)
     open_out
@@ -197,7 +199,7 @@ case "$cmd" in
     "$ADB_BIN" devices
     ;;
   clean)
-    clean_all
+    clean_local
     ;;
   *)
     cat <<EOF
