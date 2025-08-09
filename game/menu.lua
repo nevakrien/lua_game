@@ -1,18 +1,87 @@
 local menu = {}
 
--- Menu states
-local options = {"Resume", "Restart", "Quit"}
+-- Menu state variables
+local options = pauseOptions  -- Default to pauseOptions
 local selectedOption = 1
-local hoverOption = 1 -- Option that is currently being hovered
-local optionHeight = 40  -- Height for each option, used for click detection
+local hoverOption = 1
+local optionHeight = 40
+local undoStack = {}  -- Stack to store the history of active menus
 
--- Function to toggle the menu visibility
-function menu.toggle()
-    paused = not paused
-    selectedOption = 1 -- Reset to the first option when the menu is opened
+local cols = require("collisions")
+
+local explosionsOptions = {
+    {name = "Small", action = function() ColstrenghMul=1 end},
+    {name = "Normal", action = function() ColstrenghMul=2 end},
+    {name = "Big", action = function() ColstrenghMul=3 end},
+    {name = "Absurd", action = function() ColstrenghMul=10 end},
+    {name = "Back", action = function() menu.toggle() end},
+}
+
+function set_explosionsOptions()
+    menu.pushMenu(explosionsOptions)
+    if ColstrenghMul == 2 then selectedOption=2 end
+    if ColstrenghMul == 3 then selectedOption=3 end
+    if ColstrenghMul == 10 then selectedOption=4 end
+
+    hoverOption = selectedOption
+    --print("found ",selectedOption)
+
+end
+-- Settings menu options (submenu)
+local settingsOptions = {
+    {name = "Explosions", action = set_explosionsOptions},
+    {name = "Back", action = function() menu.toggle() end},  -- Back option to go back to previous menu
+}
+
+-- Default pause options
+local pauseOptions = {
+    {name = "Resume", action = function() menu.toggle() end},
+    {name = "Settings", action = function() menu.pushMenu(settingsOptions) end},  -- Added Settings menu option
+    {name = "Restart", action = function() restart(); menu.toggle() end},
+    {name = "Quit", action = function() love.event.quit() end},
+}
+
+
+
+
+
+-- Set custom options or revert to default
+function menu.setOptions(newOptions)
+    --print("setting options")
+    if newOptions then
+        options = newOptions
+    else
+        options = pauseOptions
+    end
+    selectedOption = 1
+    hoverOption = 1
 end
 
--- Function to navigate through the options (for keyboard control, if needed)
+-- Push a new menu onto the undo stack
+function menu.pushMenu(newOptions)
+    --print("pushing menu")
+    table.insert(undoStack, options)
+    options = newOptions
+    selectedOption = 1
+end
+
+-- Toggle pause menu
+function menu.toggle()
+    if paused then
+        if #undoStack > 0 then
+            options = table.remove(undoStack)
+        else
+            paused = false
+            options = pauseOptions
+        end
+    else
+        paused = true
+        options = pauseOptions
+    end
+    selectedOption = 1
+end
+
+-- Navigate through the options
 function menu.navigate(direction)
     selectedOption = selectedOption + direction
     if selectedOption < 1 then
@@ -22,65 +91,59 @@ function menu.navigate(direction)
     end
 end
 
--- Function to select an option
+-- Select an option
 function menu.select()
-    if options[selectedOption] == "Resume" then
-        menu.toggle() -- Close the menu
-    elseif options[selectedOption] == "Restart" then
-        restart()
-        menu.toggle() -- Close the menu
-    elseif options[selectedOption] == "Quit" then
-        love.event.quit() -- Exit the game
+    local option = options[selectedOption]
+    if option and option.action then
+        option.action()
     end
 end
 
--- Function to detect which menu option is clicked
+-- Detect click on menu option
 function menu.checkClick(x, y)
-    local startY = love.graphics.getHeight() / 4 + 40  -- Starting Y position for options
+    local startY = love.graphics.getHeight() / 4 + 40
     for i, option in ipairs(options) do
         local optionY = startY + (i - 1) * optionHeight
         if y >= optionY and y <= optionY + optionHeight then
+            --print("click")
             selectedOption = i
             menu.select()
-            break
+            return
         end
     end
 end
 
--- Function to detect hover over menu options
+-- Detect hover over menu options
 function menu.checkHover(x, y)
-    local startY = love.graphics.getHeight() / 4 + 40  -- Starting Y position for options
+    local startY = love.graphics.getHeight() / 4 + 40
     for i, option in ipairs(options) do
         local optionY = startY + (i - 1) * optionHeight
         if y >= optionY and y <= optionY + optionHeight then
             hoverOption = i
+            -- print("hover")
             break
         end
     end
 end
 
--- Function to draw the menu
+-- Draw the menu
 function menu.draw()
-    if paused then
-        love.graphics.setColor(0, 0, 0, 0.7) -- Dark background
-        love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
-        
-        love.graphics.setColor(1, 1, 1) -- White text
-        love.graphics.printf("Game Menu", 0, love.graphics.getHeight() / 4 - 40, love.graphics.getWidth(), "center")
-        
-        -- Draw options
-        local startY = love.graphics.getHeight() / 4 + 40  -- Starting Y position for options
-        for i, option in ipairs(options) do
-            -- Highlight hover and selection
-            local color = {1, 1, 1} -- Default color
-            if i == hoverOption then
-                color = {0.8, 0.3, 0.3} -- Hover effect
-            elseif i == selectedOption then
-                color = {0.5, 0.5, 0.5} -- Selected option color
-            end
-            love.graphics.setColor(color)
-            love.graphics.printf(option, 0, startY + (i - 1) * optionHeight, love.graphics.getWidth(), "center")
+    love.graphics.setColor(0, 0, 0, 0.7)
+    love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
+    
+    love.graphics.setColor(1, 1, 1)
+    love.graphics.printf("Game Menu", 0, love.graphics.getHeight() / 4 - 40, love.graphics.getWidth(), "center")
+    
+    local startY = love.graphics.getHeight() / 4 + 40
+    for i, option in ipairs(options) do
+        local color = {1, 1, 1}
+        if i == hoverOption then
+            color = {0.8, 0.3, 0.3}
+        elseif i == selectedOption then
+            color = {0.5, 0.5, 0.5}
         end
+        love.graphics.setColor(color)
+        love.graphics.printf(option.name, 0, startY + (i - 1) * optionHeight, love.graphics.getWidth(), "center")
     end
 end
 

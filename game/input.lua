@@ -60,6 +60,7 @@ end
 
 -- Function to handle releasing a drag
 function drag_release(world,x, y)
+    --print("release")
     if paused then
         menu.checkClick(x,y)
         return

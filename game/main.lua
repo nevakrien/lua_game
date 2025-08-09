@@ -12,6 +12,8 @@ local input = require("input")
 local menu = require("menu")
 local score_mod = require("score")
 local orb_mod = require("orb")
+local cols = require("collisions")
+
 
 aspectRatio = 16 / 9 -- Default aspect ratio (can be changed dynamically)
 

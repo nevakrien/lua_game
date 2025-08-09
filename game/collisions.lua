@@ -5,9 +5,10 @@ local colLifetime = 0.2--10--0.2
 dummy_texture = love.graphics.newCanvas(1, 1)
 
 local score_mod = require("score")
--- local strenghMul = 1
+ColstrenghMul = 2
+
 -- if isMobile then
---     strenghMul = 3
+--     ColstrenghMul = 3
 -- end
 
 function clear_collisions()
@@ -35,7 +36,7 @@ function postSolve(a, b, contact, normalImpulse1, tangentImpulse1, normalImpulse
 
     -- Calculate the total collision strength
     -- local strength = math.sqrt(totalNormalImpulse^2 + totalTangentImpulse^2)
-    local strength = math.sqrt(totalNormalImpulse^2) * 2--strenghMul
+    local strength = math.sqrt(totalNormalImpulse^2) * ColstrenghMul
 
     -- Get the collision position (if needed for debugging or visualization)
     local x, y = contact:getPositions()

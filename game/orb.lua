@@ -1,5 +1,3 @@
-local input = require("collisions")
-
 allOrbs = {}
 
 function make_world()
