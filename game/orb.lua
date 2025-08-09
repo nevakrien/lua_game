@@ -25,7 +25,7 @@ end
 
 function add_walls(world)
     -- Thickness of the walls
-    local wallThickness = 10
+    local wallThickness = 1000
 
     -- Add bounding box rectangles (static physics objects)
     -- Bottom wall
