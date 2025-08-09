@@ -83,6 +83,7 @@ local pauseMenu = {
     menu_name = "Pause Menu",
     options = {
         {name = "Resume", action = function() menu.toggle() end},
+        {name = "Save", action = function() save_world(SAVE_FILE) save_score() end},
         {name = "Settings", action = function() menu.pushMenu(settingsMenu) end},
         {name = "Restart", action = function() restart(); menu.toggle() end},
         {name = "Quit", action = function() love.event.quit() end},

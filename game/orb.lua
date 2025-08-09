@@ -1,8 +1,22 @@
 allOrbs = {}
 
+function clear_world()
+    clear_collisions()
+    allOrbs = {}
+    if world then
+        world.destroy(world)
+    end
+
+    love.physics.setMeter(30)
+    world = love.physics.newWorld(0, 0, true)
+    world:setCallbacks(beginContact, nil, nil, postSolve)
+    add_walls(world)
+    
+end
+
 function make_world()
     love.physics.setMeter(30)
-    local world = love.physics.newWorld(0, 0, true)
+    world = love.physics.newWorld(0, 0, true)
     -- world:setCallbacks(beginContact)
     world:setCallbacks(beginContact, nil, nil, postSolve)
 
@@ -17,8 +31,6 @@ function make_world()
     add_triangle_orb(world,100,0,7)
     add_triangle_orb(world,100,0,7)
     add_triangle_orb(world,100,0,7)
-
-    return world
 end
 
 function add_walls(world)
@@ -80,6 +92,8 @@ end
 function add_rectangle_orb(world, x, y, width, height)
     local orb = {
         type = "rectangle_orb",
+        height=height,
+        width=width,
     }
 
     -- Create physics body and shape
@@ -108,6 +122,7 @@ end
 function add_triangle_orb(world, x, y, side_length)
     local orb = {
         type = "triangle_orb",
+        side_length=side_length,
     }
 
     -- Calculate the vertices of the equilateral triangle
@@ -221,4 +236,179 @@ function drag_orb(world, orb, x, y,dt)
     body:applyLinearImpulse(dx * impulse, dy * impulse)
 
     -- debug_orb(orb)
+end
+
+function delete_orb(orb)
+    if orb then
+        if selectedOrb == orb then
+            selectedOrb = nil
+        end
+        -- Remove the orb from the world
+        if orb.body then
+            orb.body:destroy()  -- Destroy the physics body and its fixtures
+        end
+        
+        -- Remove the orb from the allOrbs table
+        for i, existingOrb in ipairs(allOrbs) do
+            if existingOrb == orb then
+                table.remove(allOrbs, i)
+                break
+            end
+        end
+    end
+end
+
+-- Save the state of all orbs to a file (includes angular velocity)
+function save_world(filename)
+    local file = love.filesystem.newFile(filename)
+    local ok, err = file:open("w")
+    if not ok then
+        print("Failed to open file for saving:", err)
+        return
+    end
+
+    for _, orb in ipairs(allOrbs) do
+        local x, y = orb.body:getPosition()
+        local vx, vy = orb.body:getLinearVelocity()
+        local angle  = orb.body:getAngle()
+        local av     = orb.body:getAngularVelocity()
+        local t      = orb.type
+
+        local line
+        if t == "orb" then
+            -- type,x,y,vx,vy,angle,angvel
+            line = string.format("%s,%f,%f,%f,%f,%f,%f\n", t, x, y, vx, vy, angle, av)
+        elseif t == "rectangle_orb" then
+            -- type,x,y,vx,vy,angle,angvel,width,height
+            line = string.format("%s,%f,%f,%f,%f,%f,%f,%f,%f\n", t, x, y, vx, vy, angle, av, orb.width, orb.height)
+        elseif t == "triangle_orb" then
+            -- type,x,y,vx,vy,angle,angvel,side_length
+            line = string.format("%s,%f,%f,%f,%f,%f,%f,%f\n", t, x, y, vx, vy, angle, av, orb.side_length)
+        end
+
+        if line then file:write(line) end
+    end
+
+    file:close()
+    print("Orb state saved successfully!")
+end
+
+
+-- Load the orb state from a file, with fallback to make_world() on failure
+function load_world(filename)
+    local function fail(...)
+        if select('#', ...) > 0 then print("Load failed:", ...) end
+        return false
+    end
+
+    local info = love.filesystem.getInfo(filename)
+    if not info then
+        print("No saved orb state found.")
+        return fail("missing file")
+    end
+
+    local file = love.filesystem.newFile(filename)
+    local ok, err = file:open("r")
+    if not ok then
+        return fail(err)
+    end
+
+    -- fresh world
+    clear_world()
+
+    local loaded = 0
+
+    local function split_csv(line)
+        local t = {}
+        for part in line:gmatch("([^,]+)") do
+            t[#t+1] = part
+        end
+        return t
+    end
+
+    for line in file:lines() do
+        local p = split_csv(line)
+        local typ = p[1]
+        if typ == "orb" then
+            -- old: 6 fields (no angvel); new: 7 fields (with angvel)
+            if #p ~= 6 and #p ~= 7 then goto continue end
+            local x  = tonumber(p[2]); local y  = tonumber(p[3])
+            local vx = tonumber(p[4]); local vy = tonumber(p[5])
+            local ang = tonumber(p[6]); local angvel = tonumber(p[7]) or 0
+            if not (x and y and vx and vy and ang) then goto continue end
+
+            add_basic_orb(world, x, y)
+            local orb = allOrbs[#allOrbs]
+            if orb then
+                orb.body:setPosition(x, y)
+                orb.body:setLinearVelocity(vx, vy)
+                orb.body:setAngle(ang)
+                orb.body:setAngularVelocity(angvel)
+                orb.body:setAwake(true)
+                loaded = loaded + 1
+            end
+
+        elseif typ == "rectangle_orb" then
+            -- old: 8 (no angvel) -> type,x,y,vx,vy,angle,width,height
+            -- new: 9 (with angvel) -> type,x,y,vx,vy,angle,angvel,width,height
+            if #p ~= 8 and #p ~= 9 then goto continue end
+            local x  = tonumber(p[2]); local y  = tonumber(p[3])
+            local vx = tonumber(p[4]); local vy = tonumber(p[5])
+            local ang = tonumber(p[6])
+            local angvel, w, h
+            if #p == 9 then
+                angvel = tonumber(p[7]); w = tonumber(p[8]); h = tonumber(p[9])
+            else
+                angvel = 0;               w = tonumber(p[7]); h = tonumber(p[8])
+            end
+            if not (x and y and vx and vy and ang and w and h) then goto continue end
+
+            add_rectangle_orb(world, x, y, w, h)
+            local orb = allOrbs[#allOrbs]
+            if orb then
+                orb.body:setPosition(x, y)
+                orb.body:setLinearVelocity(vx, vy)
+                orb.body:setAngle(ang)
+                orb.body:setAngularVelocity(angvel)
+                orb.body:setAwake(true)
+                loaded = loaded + 1
+            end
+
+        elseif typ == "triangle_orb" then
+            -- old: 7 (no angvel) -> type,x,y,vx,vy,angle,side
+            -- new: 8 (with angvel) -> type,x,y,vx,vy,angle,angvel,side
+            if #p ~= 7 and #p ~= 8 then goto continue end
+            local x  = tonumber(p[2]); local y  = tonumber(p[3])
+            local vx = tonumber(p[4]); local vy = tonumber(p[5])
+            local ang = tonumber(p[6])
+            local angvel, side
+            if #p == 8 then
+                angvel = tonumber(p[7]); side = tonumber(p[8])
+            else
+                angvel = 0;               side = tonumber(p[7])
+            end
+            if not (x and y and vx and vy and ang and side) then goto continue end
+
+            add_triangle_orb(world, x, y, side)
+            local orb = allOrbs[#allOrbs]
+            if orb then
+                orb.body:setPosition(x, y)
+                orb.body:setLinearVelocity(vx, vy)
+                orb.body:setAngle(ang)
+                orb.body:setAngularVelocity(angvel)
+                orb.body:setAwake(true)
+                loaded = loaded + 1
+            end
+        end
+        ::continue::
+    end
+
+    file:close()
+
+    if loaded == 0 then
+        return fail("no valid orbs parsed")
+    end
+
+    print("Orb state loaded successfully!", loaded, "orbs")
+    return true
 end

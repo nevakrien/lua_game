@@ -12,6 +12,9 @@ aspectRatio = 16 / 9 -- Default aspect ratio (can be changed dynamically)
 worldWidth = 100 * aspectRatio
 worldHeight = 100
 
+SAVE_FILE = "current.txt"
+
+
 love.filesystem.setIdentity("nevakrien.boomboom")
 local input = require("input")
 local menu = require("menu")
@@ -25,11 +28,12 @@ local cols = require("collisions")
 local canvas = nil
 
 
-
 function love.load()
     load_settings()
     load_score()
-    world = make_world()
+    if not load_world(SAVE_FILE) then
+        make_world()
+    end
     love.window.setTitle("Love2D Window Resize with Aspect Ratio")
     if isMobile then
         _ = love.window.setFullscreen(true)
@@ -48,13 +52,14 @@ function restart()
     clear_collisions()
     allOrbs = {}
     world.destroy(world)
-    world = make_world()
+    make_world()
 
     reset_score()
 end
 
 function love.quit()
     save_score()
+    save_world(SAVE_FILE)
 end
 
 function remake_canvas() 
